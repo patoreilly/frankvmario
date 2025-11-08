@@ -1,2 +1,2 @@
-# dragonfly
-HTML5 Ray-casting engine 
+# Frankenstein vs Mariokart
+Demo made with Dragonfly Ray-casting engine.
