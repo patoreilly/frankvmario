@@ -2254,6 +2254,140 @@ function activate_blueorbs(thisContext,quantity,x1,x2,y1,y2)
 function activate_mariocarts(thisContext,quantity,x1,x2,y1,y2)
 {
     //active_objectGangs.push('mariocarts');
+        thisContext.mariocart = thisContext.add.image();
+
+        
+        thisContext.mariocart.sswidth = 32;
+        thisContext.mariocart.ssheight = 32;
+        thisContext.mariocart.framewidth = 32;
+        thisContext.mariocart.numframes = 22;
+        thisContext.mariocart.frameindex = 0;
+
+        thisContext.mariocart.buffer = thisContext.textures.createCanvas('mariocartcanvas', thisContext.mariocart.sswidth, thisContext.mariocart.ssheight );
+        thisContext.mariocart.context = thisContext.mariocart.buffer.getContext('2d', {willReadFrequently:true});              
+        var imageData = thisContext.mariocart.context.getImageData(0, 0, thisContext.mariocart.sswidth, thisContext.mariocart.ssheight);
+        thisContext.mariocart.pixels = imageData.data;
+
+        thisContext.mariocart.frames=[];
+
+        for (var i=1;i<23;i++)
+        {
+            thisContext.mariocart.frames[i-1] = {};
+
+            var frameimg = thisContext.textures.get('mariocart'+i+'.png').getSourceImage();
+            thisContext.mariocart.frames[i-1].buffer = thisContext.textures.createCanvas('mariocartframe'+i, thisContext.mariocart.sswidth, thisContext.mariocart.ssheight );
+
+            thisContext.mariocart.frames[i-1].context = thisContext.mariocart.frames[i-1].buffer.getContext('2d', {willReadFrequently:true});      
+            thisContext.mariocart.frames[i-1].context.drawImage(frameimg, 0, 0,frameimg.width,frameimg.height, 0, 0, thisContext.mariocart.framewidth, thisContext.mariocart.ssheight );
+        
+            var imageData = thisContext.mariocart.frames[i-1].context.getImageData(0, 0, thisContext.mariocart.sswidth, thisContext.mariocart.ssheight);
+            thisContext.mariocart.frames[i-1].pixels = imageData.data;       
+        }
+        
+
+        thisContext.mariocart.label = "mariocarts";
+        thisContext.mariocart.type = 'target';
+        thisContext.mariocart.hitcount = 0;
+        thisContext.mariocart.explosioncolor= 'orange';
+
+        thisContext.mariocart.img = thisContext.textures.get('mariocartcanvas').getSourceImage();
+        thisContext.mariocart.x = 400;
+        thisContext.mariocart.y = 1060;
+        thisContext.mariocart.arc = 0;
+        thisContext.mariocart.animated = false;
+        //a_zsprite.flying = false;
+        thisContext.mariocart.animationtimecheck=0;
+        thisContext.mariocart.frametimer = 50;
+        thisContext.mariocart.frameindex = 0;
+
+        thisContext.mariocart.inplay = true;
+        
+        thisContext.mariocart.elevation_delta = 0;
+        thisContext.mariocart.base_elevation = Math.floor(thisContext.mariocart.img.height/2)-5;
+
+        thisContext.mariocart.startX = 100;
+        thisContext.mariocart.startY = 100;
+
+        thisContext.mariocart.relative_arcdelta;
+
+        thisContext.mariocart.followerdata = 0;
+        thisContext.mariocart.followerdata2 = 0;
+        thisContext.mariocart.path_duration = 60000;
+        thisContext.mariocart.path_delay = 0;
+
+        thisContext.mariocart.path = new Phaser.Curves.Path(thisContext.mariocart.startX, thisContext.mariocart.startY);
+
+        //thisContext.demoBot.path.ellipseTo(1200,1200,360,0,true,180);
+        //160,136,440,280,640,56,870,194,1240,56,1160,536,1200,736,840,896,800,536,480,816,80,776,400,496,100,250 ]);
+        thisContext.mariocart.path.splineTo([ 308,123,640,150,880,470,1440,256,1760,576,2240,470,2480,896,2400,1428,1760,1215,1520,1428,
+            1680,1855,2160,1748,2320,2174,1920,2480,1280,2390,1120,1960,1152,1450,800,1322,
+            604,1615,736,2051,560,2388,240,2494,80,2175,220,1818,200,1450,412,1215,400,895,180,656,84,341 ]);
+        thisContext.mariocart.path.closePath();
+
+        thisContext.tweens.add({
+            targets: thisContext.mariocart,
+            followerdata: 1,
+            ease: 'none',
+            duration: thisContext.mariocart.path_duration,
+            delay: thisContext.mariocart.path_delay,
+            yoyo: 0,
+            repeat: -1
+        });
+
+        thisContext.tweens.add({
+            targets: thisContext.mariocart,
+            followerdata2: 1,
+            ease: 'none',
+            duration: thisContext.mariocart.path_duration,
+            delay: thisContext.mariocart.path_delay+1,
+            yoyo: 0,
+            repeat: -1
+        });
+        
+        thisContext.mariocart.move = function()
+        {
+            this.x = this.path.getPoint(this.followerdata2).x; 
+            this.y = this.path.getPoint(this.followerdata2).y;
+
+            var trackingX = this.path.getPoint(this.followerdata).x;           
+            var trackingY = this.path.getPoint(this.followerdata).y;
+            
+            var distance = Phaser.Math.Distance.Between(this.x,this.y,trackingX,trackingY);
+            var xdelta = this.x-trackingX;
+            var ydelta = this.y-trackingY;
+            var myrad = Math.asin(ydelta/distance);
+            var myarc = Math.round(thisContext.radToArc(myrad))+thisContext.ANGLE180;
+
+            if (xdelta>0)
+            {
+                var myadjarc = myarc;
+            }
+            else if (ydelta>0)
+            {
+                var myadjarc = (1440-myarc)+1440;
+            }    
+            else 
+            {
+                var myadjarc = (960-myarc);
+            }
+
+            myadjarc -= thisContext.fPlayerArc;
+
+            if (myadjarc<0) myadjarc+=1920;
+            if (myadjarc>1920) myadjarc-=1920;
+            
+            this.arc = myadjarc;
+
+            var myarcframeindex = Math.floor((myadjarc*this.numframes)/1920);
+
+            if (this.frames[myarcframeindex] !=undefined)
+            {
+                this.pixels = this.frames[myarcframeindex].pixels;
+            }
+        }
+
+        thisContext.zspritesgroup.add(thisContext.mariocart);
+
 
 
         thisContext.ralphcart = thisContext.add.image();
@@ -2659,6 +2793,150 @@ function activate_mariocarts(thisContext,quantity,x1,x2,y1,y2)
         }
 
         thisContext.zspritesgroup.add(thisContext.pippincart);
+
+}
+
+
+
+function activate_frankcart(thisContext,quantity,x1,x2,y1,y2)
+{
+    //active_objectGangs.push('mariocarts');
+
+
+        thisContext.frankcart = thisContext.add.image();
+
+        
+        thisContext.frankcart.sswidth = 72;
+        thisContext.frankcart.ssheight = 48;
+        thisContext.frankcart.framewidth = 72;
+        thisContext.frankcart.numframes = 22;
+        thisContext.frankcart.frameindex = 0;
+
+        thisContext.frankcart.buffer = thisContext.textures.createCanvas('frankcartcanvas', thisContext.frankcart.sswidth, thisContext.frankcart.ssheight );
+        thisContext.frankcart.context = thisContext.frankcart.buffer.getContext('2d', {willReadFrequently:true});              
+        var imageData = thisContext.frankcart.context.getImageData(0, 0, thisContext.frankcart.sswidth, thisContext.frankcart.ssheight);
+        thisContext.frankcart.pixels = imageData.data;
+
+        thisContext.frankcart.frames=[];
+
+        for (var i=1;i<23;i++)
+        {
+            thisContext.frankcart.frames[i-1] = {};
+
+            var frameimg = thisContext.textures.get('frankcart'+i+'.png').getSourceImage();
+            thisContext.frankcart.frames[i-1].buffer = thisContext.textures.createCanvas('frankcartframe'+i, thisContext.frankcart.sswidth, thisContext.frankcart.ssheight );
+
+            thisContext.frankcart.frames[i-1].context = thisContext.frankcart.frames[i-1].buffer.getContext('2d', {willReadFrequently:true});      
+            thisContext.frankcart.frames[i-1].context.drawImage(frameimg, 0, 0,frameimg.width,frameimg.height, 0, 0, thisContext.frankcart.framewidth, thisContext.frankcart.ssheight );
+        
+            var imageData = thisContext.frankcart.frames[i-1].context.getImageData(0, 0, thisContext.frankcart.sswidth, thisContext.frankcart.ssheight);
+            thisContext.frankcart.frames[i-1].pixels = imageData.data;       
+        }
+        
+
+        thisContext.frankcart.label = "mariocarts";
+        thisContext.frankcart.type = 'target';
+        thisContext.frankcart.hitcount = 0;
+        thisContext.frankcart.explosioncolor= 'orange';
+
+        thisContext.frankcart.img = thisContext.textures.get('frankcartcanvas').getSourceImage();
+        thisContext.frankcart.x = 400;
+        thisContext.frankcart.y = 1060;
+        thisContext.frankcart.arc = 0;
+        thisContext.frankcart.animated = false;
+        //a_zsprite.flying = false;
+        thisContext.frankcart.animationtimecheck=0;
+        thisContext.frankcart.frametimer = 50;
+        thisContext.frankcart.frameindex = 0;
+
+        thisContext.frankcart.inplay = true;
+        
+        thisContext.frankcart.elevation_delta = 0;
+        thisContext.frankcart.base_elevation = Math.floor(thisContext.frankcart.img.height/2)-15;
+
+        thisContext.frankcart.startX = 100;
+        thisContext.frankcart.startY = 100;
+
+        thisContext.frankcart.relative_arcdelta;
+
+        thisContext.frankcart.followerdata = 0;
+        thisContext.frankcart.followerdata2 = 0;
+        thisContext.frankcart.path_duration = 60000;
+        thisContext.frankcart.path_delay = 3200;
+
+        thisContext.frankcart.path = new Phaser.Curves.Path(thisContext.frankcart.startX, thisContext.frankcart.startY);
+
+        //thisContext.demoBot.path.ellipseTo(1200,1200,360,0,true,180);
+        //160,136,440,280,640,56,870,194,1240,56,1160,536,1200,736,840,896,800,536,480,816,80,776,400,496,100,250 ]);
+        thisContext.frankcart.path.splineTo([ 308,123,640,150,880,470,1440,256,1760,576,2240,470,2480,896,2400,1428,1760,1215,1520,1428,
+            1680,1855,2160,1748,2320,2174,1920,2480,1280,2390,1120,1960,1152,1450,800,1322,
+            604,1615,736,2051,560,2388,240,2494,80,2175,220,1818,200,1450,412,1215,400,895,180,656,84,341 ]);
+        thisContext.frankcart.path.closePath();
+
+        thisContext.tweens.add({
+            targets: thisContext.frankcart,
+            followerdata: 1,
+            ease: 'none',
+            duration: thisContext.frankcart.path_duration,
+            delay: thisContext.frankcart.path_delay,
+            yoyo: 0,
+            repeat: -1
+        });
+
+        thisContext.tweens.add({
+            targets: thisContext.frankcart,
+            followerdata2: 1,
+            ease: 'none',
+            duration: thisContext.frankcart.path_duration,
+            delay: thisContext.frankcart.path_delay+1,
+            yoyo: 0,
+            repeat: -1
+        });
+        
+        thisContext.frankcart.move = function()
+        {
+            this.x = this.path.getPoint(this.followerdata2).x; 
+            this.y = this.path.getPoint(this.followerdata2).y;
+
+            var trackingX = this.path.getPoint(this.followerdata).x;           
+            var trackingY = this.path.getPoint(this.followerdata).y;
+            
+            var distance = Phaser.Math.Distance.Between(this.x,this.y,trackingX,trackingY);
+            var xdelta = this.x-trackingX;
+            var ydelta = this.y-trackingY;
+            var myrad = Math.asin(ydelta/distance);
+            var myarc = Math.round(thisContext.radToArc(myrad))+thisContext.ANGLE180;
+
+            if (xdelta>0)
+            {
+                var myadjarc = myarc;
+            }
+            else if (ydelta>0)
+            {
+                var myadjarc = (1440-myarc)+1440;
+            }    
+            else 
+            {
+                var myadjarc = (960-myarc);
+            }
+
+            myadjarc -= thisContext.fPlayerArc;
+
+            if (myadjarc<0) myadjarc+=1920;
+            if (myadjarc>1920) myadjarc-=1920;
+            
+            this.arc = myadjarc;
+
+            var myarcframeindex = Math.floor((myadjarc*this.numframes)/1920);
+
+            if (this.frames[myarcframeindex] !=undefined)
+            {
+                this.pixels = this.frames[myarcframeindex].pixels;
+            }
+        }
+
+        thisContext.zspritesgroup.add(thisContext.frankcart);
+
 
 }
 
