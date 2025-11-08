@@ -1,0 +1,73 @@
+{
+  "resources": [
+    "./assets/horizon6_sounds.ogg",
+    "./assets/horizon6_sounds.mp3"
+  ],
+  "spritemap": {
+    "welcome loop": {
+      "start": 14.0,
+      "end": 24.123,
+      "loop": true
+    },
+    "level init": {
+      "start": 4.0,
+      "end": 8.7,
+      "loop": false
+    },
+    "no ammo": {
+      "start": 8.9,
+      "end": 9.1,
+      "loop": false
+    },
+    "pad contact": {
+      "start": 9.25,
+      "end": 10.3,
+      "loop": false
+    },
+    "laser fire": {
+      "start": 10.35,
+      "end": 10.85,
+      "loop": false
+    },
+    "explosion": {
+      "start": 10.95,
+      "end": 11.9,
+      "loop": false
+    },
+    "refuel": {
+      "start": 12.0,
+      "end": 12.9,
+      "loop": false
+    },
+    "rescue": {
+      "start": 13.0,
+      "end": 13.4,
+      "loop": false
+    },
+    "low fuel": {
+      "start": 13.5,
+      "end": 13.8,
+      "loop": false
+    },
+    "bonus": {
+      "start": 0.25,
+      "end": 0.9,
+      "loop": false
+    },
+    "high score": {
+      "start": 1.0,
+      "end": 1.5,
+      "loop": false
+    },
+    "char move": {
+      "start": 2.0,
+      "end": 2.12,
+      "loop": false
+    },
+    "char select": {
+      "start": 2.5,
+      "end": 2.8,
+      "loop": false
+    }               
+  }
+}
